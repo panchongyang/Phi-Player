@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <input type="file" id="folder" multiple accept=".zip"/>
+    <label for="offset">偏移：</label>
+    <input type ='number' id="offset" value="0" />
+    <button id="start">开始</button>
+    <button id="pause">暂停</button>
+    <button id="replay">重播</button>
+    <button id="reset">重置</button>
+    <button id="save-offset">保存偏移</button>
+    <button id="full">全屏</button>
+
+    <audio id="music" controls></audio>
+    <audio id="perfect"></audio>
+    <div class="body">
+        <canvas id="myCanvas"></canvas>
+    </div>
+    <script src="./js/index.ts"></script>
+</body>
+</html>
