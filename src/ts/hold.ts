@@ -54,7 +54,7 @@ export class Hold extends Note {
         }).value;
         const _this = this;
         this.long = this.speeds.reduce((pre, cur) => {
-            if (cur.start < this.timing) {
+            if (cur.start <= this.timing) {
                 return {
                     value: 0,
                     lastTime: 0,
@@ -242,5 +242,21 @@ export class Hold extends Note {
                 this.status = 'perfect';
             }
         }
+    }
+
+    public renderHitEffect(time: number) {
+        if (this.fake || time - this.endTiming < 0 || time - this.endTiming > 240 && this.hitTime !== 0) {
+            return;
+        }
+        if (this.hitTime === 0) {
+            this.hitTime = time;
+        }
+        if(time < this.hitTime) {
+            return ;
+        }
+        this.ctx.strokeStyle = "#e4d72288";
+        const startX = this.ctxWidth / 2 + relativelyX(this.position.x) - (time - this.hitTime) / this.hitEffectTime * (this.width / 2);
+        const startY = this.ctxHeight / 2 + relativelyY(this.position.y) - (time - this.hitTime) / this.hitEffectTime * (this.width / 2);
+        this.ctx.strokeRect(startX, startY, (time - this.hitTime) / this.hitEffectTime * this.width, (time - this.hitTime) / this.hitEffectTime * this.width);
     }
 }

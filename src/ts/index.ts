@@ -341,6 +341,22 @@ const onReadyPlay = () => {
                 const pause = document.getElementById('pause') as HTMLButtonElement;
                 const replay = document.getElementById('replay') as HTMLButtonElement;
                 const full = document.getElementById('full') as HTMLButtonElement;
+
+                document.onkeydown = (e) => {
+                    console.log(e.code);
+                    if(e.code === 'ArrowRight') {
+                        music.currentTime += 5;
+                    }
+                    if(e.code === 'ArrowLeft') {
+                        music.currentTime -= 5;
+                    }
+                    if(e.code === 'Space') {
+                        pause.click();
+                    }
+                    if(e.code === 'KeyR') {
+                        replay.click();
+                    }
+                }
                 full.onclick = () => {
                     canvas.requestFullscreen();
                 }

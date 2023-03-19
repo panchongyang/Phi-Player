@@ -2,8 +2,8 @@
 var dpr = window.devicePixelRatio;
 
 // 获取屏幕可见宽度和高度（CSS像素）
-var screenWidth = document.documentElement.clientWidth;
-var screenHeight = document.documentElement.clientHeight;
+var screenWidth = window.screen.width;
+var screenHeight = window.screen.height;
 
 // 计算屏幕真实宽度和高度（物理像素）
 export var realWidth = dpr * screenWidth;
@@ -16,8 +16,8 @@ export const relativelyH = 1400 * relativelyNumber;
 
 
 
-export const width = realHeight * relativelyW / relativelyH;
-export const height = realHeight;
+export const width = screenWidth;
+export const height = screenHeight;
 
 export const speedNumber = 7.525;
 

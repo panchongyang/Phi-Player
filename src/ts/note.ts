@@ -185,6 +185,9 @@ export class Note {
     }
 
     public renderHitEffect(time: number) {
+        if (this.fake || time - this.timing < 0 || time - this.timing > 240 && this.hitTime !== 0) {
+            return;
+        }
         if (this.hitTime === 0) {
             this.hitTime = time;
         }
