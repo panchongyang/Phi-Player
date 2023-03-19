@@ -103,13 +103,21 @@ export class Line {
                         }
                         let nowValue = easeList[event.easeType](time - event.start, event.startValue, event.endValue - event.startValue, event.end - event.start);
                         if(Number.isNaN(nowValue)) {
-                            nowValue = easeList[0](time - event.start, event.startValue as number, event.endValue - (event.startValue as number), event.end - event.start);
+                            if(event.endValue === event.startValue) {
+                                nowValue = event.endValue;
+                            } else {
+                                nowValue = easeList[0](time - event.start, event.startValue as number, event.endValue - (event.startValue as number), event.end - event.start);
+                            }
                         }
                         this.setNowValue(event.type, nowValue);
                     } catch(err) {
                         let nowValue = easeList[0](time - event.start, event.startValue as number, event.endValue - (event.startValue as number), event.end - event.start);
                         if(Number.isNaN(nowValue)) {
-                            nowValue = easeList[0](time - event.start, event.startValue as number, event.endValue - (event.startValue as number), event.end - event.start);
+                            if(event.endValue === event.startValue) {
+                                nowValue = event.endValue;
+                            } else {
+                                nowValue = easeList[0](time - event.start, event.startValue as number, event.endValue - (event.startValue as number), event.end - event.start);
+                            }
                         }
                         this.setNowValue(event.type, nowValue);
                     }

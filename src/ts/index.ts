@@ -324,6 +324,11 @@ const onReadyPlay = () => {
 
         music.onpause = () => {
             game.pause();
+        };
+
+        music.onplay = (e) => {
+            e.preventDefault();
+            (document.getElementById('start') as HTMLButtonElement).click();
         }
 
         console.log('ok');

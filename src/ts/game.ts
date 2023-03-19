@@ -54,7 +54,7 @@ export class Game {
             if (this.lastFrameTime === 0) {
                 this.lastFrameTime = time;
             }
-            this.time += time - this.lastFrameTime;
+            this.time = this.audio.currentTime * 1000 + this.offset;
             this.realTime = time;
             try {
                 this.nextFrame(this.time);
