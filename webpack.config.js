@@ -6,7 +6,7 @@ module.exports = {
     entry: './src/ts/index.ts',
     output: {
         filename: 'main.js',
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'root'),
     },
     module: {
         rules: [
