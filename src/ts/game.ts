@@ -17,6 +17,8 @@ export class Game {
     public status: string = 'none';
     private img = new Image();
     public offset: number = 0;
+    private frameNumber = 0;
+    private frameCount = 0;
 
     constructor(ctx: CanvasRenderingContext2D, audio: HTMLAudioElement, imgFile: Blob) {
         this.ctx = ctx;
@@ -52,16 +54,25 @@ export class Game {
     private setFrame() {
         const next = (time: number) => {
             if (this.lastFrameTime === 0) {
-                this.lastFrameTime = time;
+                this.lastFrameTime = this.audio.currentTime * 1000 + this.offset;
             }
-            this.time = this.audio.currentTime * 1000 + this.offset;
-            this.realTime = time;
+            if(this.frameNumber === 0) {
+                this.frameNumber = 144;
+            }
+            if(this.time !== this.audio.currentTime * 1000 + this.offset) {
+                this.time = this.audio.currentTime * 1000 + this.offset;
+                this.frameCount++;
+            }
             try {
                 this.nextFrame(this.time);
             } catch(err) {
                 console.log(err);
             }
-            this.lastFrameTime = time;
+            if(this.time - this.lastFrameTime > 500) {
+                this.frameNumber = this.frameCount * 2;
+                this.frameCount = 0;
+                this.lastFrameTime = this.audio.currentTime * 1000 + this.offset;
+            }
             this.frameID = requestAnimationFrame(next);
         }
         this.frameID = requestAnimationFrame(next);
@@ -138,6 +149,6 @@ export class Game {
             line.renderNext(time);
         }
         this.ctx.fillStyle = '#fff';
-        this.ctx.fillText(`${Math.floor(1000 / (this.realTime - this.lastFrameTime))}`, width - 40, 20);
+        this.ctx.fillText(`${this.frameNumber}`, width - 40, 20);
     };
 }
