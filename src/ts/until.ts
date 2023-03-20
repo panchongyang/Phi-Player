@@ -12,8 +12,35 @@ export function rotatePoint(pointX: number, pointY: number, originX: number, ori
     return [rotatedX, rotatedY];
 }
 
-export function beatToTime(beat: number[], bpm: number) {
-    return beat[0] / bpm * 1000 * 60 + (beat[1] / beat[2]) * (1 / bpm * 1000 * 60);
+export function beatToTime(beat: number[], bpm: { start: number, value: number }[]) {
+    if (bpm.length === 1) {
+        return beat[0] / bpm[0].value * 1000 * 60 + (beat[1] / beat[2]) * (1 / bpm[0].value * 1000 * 60);
+    } else {
+        return bpm.reduce((pre, cur, index, bpm) => {
+            if((beat[0] + (beat[1] / beat[2])) > cur.start) {
+                if(index === bpm.length - 1) {
+                    return {
+                        value: pre.value + (beat[0] + (beat[1] / beat[2]) - cur.start) / cur.value * 1000 * 60,
+                    };
+                }
+                if((beat[0] + (beat[1] / beat[2])) <= bpm[index + 1].start) {
+                    return {
+                        value: pre.value + (beat[0] + (beat[1] / beat[2]) - cur.start) / cur.value * 1000 * 60,
+                    };
+                } else {
+                    return {
+                        value: pre.value + (bpm[index + 1].start - cur.start) / cur.value * 1000 * 60,
+                    };
+                }
+            } else {
+                return pre;
+            }
+
+        }, {
+            value: 0,
+        }).value;
+    }
+
 }
 
 // 定义一个函数，求过点（x, y）、角度为d的直线与一个对角端点分别为（0， 0），（1200， 800）的矩形的两个交点

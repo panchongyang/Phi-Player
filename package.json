@@ -21,6 +21,7 @@
     "buffer-from": "^1.1.2",
     "caniuse-lite": "^1.0.30001462",
     "chrome-trace-event": "^1.0.3",
+    "clean-webpack-plugin": "^4.0.0",
     "clone-deep": "^4.0.1",
     "colorette": "^2.0.19",
     "commander": "^2.20.3",

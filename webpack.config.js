@@ -1,11 +1,12 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     mode: 'production',
     entry: './src/ts/index.ts',
     output: {
-        filename: 'main.js',
+        filename: '[name]_[contenthash]_bundle.js',
         path: path.resolve(__dirname, 'docs'),
     },
     module: {
@@ -26,6 +27,7 @@ module.exports = {
         ],
     },
     plugins: [
+        new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({//设置模板文件
             template: './src/index.html',//使用打包后的模板文件
             filename: 'index.html'//打包后文件的名字
