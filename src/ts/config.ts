@@ -16,7 +16,7 @@ export const relativelyH = 1400 * relativelyNumber;
 
 
 
-export const width = screenWidth;
+export const width = screenHeight * relativelyW / relativelyH;
 export const height = screenHeight;
 
 export const speedNumber = 7.525;

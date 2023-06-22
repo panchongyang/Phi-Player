@@ -87,11 +87,7 @@ const onReadyPlay = () => {
     let bpm: { start: number, value: number }[] = [];
     const lineEvents: { [key: string]: LEvent[] } = {};
     const notes: { [key: string]: NoteConfig[] } = {};
-    let lastCM: string;
-    let lastCR: string;
-    let lastCF: string;
-    let lastCV: string;
-    data.split('\n').forEach((item, index, originArr) => {
+    data.split('\n').forEach((item) => {
         // if(index === 0) {
         //     offset = parseInt(item);
         // }
@@ -111,7 +107,7 @@ const onReadyPlay = () => {
                 timing: beatToTime([parseFloat(arr[2]), 0, 1], bpm),
                 startx: parseFloat(arr[arr.length - 3]) / 1024 * (relativelyW) / 2,
                 type: 'drag',
-                bellow: arr[4] === '2'
+                bellow: !(arr[4] === '1')
             });
         } else if (item.startsWith('n3')) {
             const arr = item.split(' ');
@@ -122,7 +118,7 @@ const onReadyPlay = () => {
                 timing: beatToTime([parseFloat(arr[2]), 0, 1], bpm),
                 startx: parseFloat(arr[arr.length - 3]) / 1024 * (relativelyW) / 2,
                 type: 'flicker',
-                bellow: arr[4] === '2'
+                bellow: !(arr[4] === '1')
             });
         } else if (item.startsWith('n1')) {
             const arr = item.split(' ');
@@ -133,7 +129,7 @@ const onReadyPlay = () => {
                 timing: beatToTime([parseFloat(arr[2]), 0, 1], bpm),
                 startx: parseFloat(arr[arr.length - 3]) / 1024 * (relativelyW) / 2,
                 type: 'note',
-                bellow: arr[4] === '2'
+                bellow: !(arr[4] === '1')
             });
         } else if (item.startsWith('n2')) {
             const arr = item.split(' ');
@@ -144,7 +140,7 @@ const onReadyPlay = () => {
                 timing: beatToTime([parseFloat(arr[2]), 0, 1], bpm),
                 startx: parseFloat(arr[arr.length - 3]) / 1024 * (relativelyW) / 2,
                 type: 'hold',
-                bellow: arr[5] === '2',
+                bellow: !(arr[5] === '1'),
                 endTiming: beatToTime([parseFloat(arr[3]), 0, 1], bpm)
             });
         }
@@ -156,7 +152,6 @@ const onReadyPlay = () => {
                 lineEvents[arr[1]] = [];
             }
             lineEvents[`${arr[1]}`].push(new LEvent(beatToTime([parseFloat(arr[2]), 0, 1], bpm), beatToTime([parseFloat(arr[3]), 0, 1], bpm), 'r', 'extends', parseFloat(arr[4]), parseInt(arr[5]) - 1));
-            lastCR = item;
         } else if (item.startsWith('cm')) {
             const arr = item.split(' ');
             if (lineEvents[arr[1]] === undefined) {
@@ -199,10 +194,11 @@ const onReadyPlay = () => {
 
 
     });
+    const game = new Game(ctx, music, img);
     let keyLines: { [key: string]: Line } = {};
     for (const key in notes) {
         if (keyLines[key] === undefined) {
-            keyLines[key] = new Line(parseInt(key), ctx, 7, notes[key]);
+            keyLines[key] = new Line(game, parseInt(key), ctx, 7, notes[key]);
         }
     }
     for (const key in lineEvents) {
@@ -210,7 +206,7 @@ const onReadyPlay = () => {
             return a.start - b.start
         });
         if (keyLines[key] === undefined) {
-            const line = new Line(parseInt(key), ctx, 7, []);
+            const line = new Line(game, parseInt(key), ctx, 7, []);
             line.setEvents(lineEvents[key]);
             keyLines[key] = line;
         } else {
@@ -226,7 +222,6 @@ const onReadyPlay = () => {
 
     if (music !== null) {
         music.volume = 10 / 100;
-        const game = new Game(ctx, music, img);
         const offsetEle = document.getElementById('offset') as HTMLInputElement;
 
         if (folder.files && offsetEle && offsetEle.value) {
@@ -273,7 +268,6 @@ const onReadyPlay = () => {
                 const full = document.getElementById('full') as HTMLButtonElement;
 
                 document.onkeydown = (e) => {
-                    console.log(e.code);
                     if (e.code === 'ArrowRight') {
                         music.currentTime += 5;
                     }

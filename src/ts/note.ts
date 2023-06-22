@@ -2,6 +2,8 @@ import { Position } from "./position";
 import { height, relativelyNumber, relativelyX, relativelyY, speedNumber, width } from "./config";
 import { rotatePoint } from "./until";
 import { noteType, playAudio } from "./audios";
+import { Game } from "./game";
+import { Line } from "./line";
 
 export class Note {
     public startPosition: Position;
@@ -10,7 +12,7 @@ export class Note {
     public ctxWidth: number = width;
     public ctxHeight: number = height;
     public ctx: CanvasRenderingContext2D;
-    public width: number = relativelyX(225 * relativelyNumber);
+    public width: number = relativelyX(275 * relativelyNumber);
     public status: string = 'drop';
     public much: boolean = false;
     public hitTime: number = 0;
@@ -18,6 +20,10 @@ export class Note {
     public startY: number = 0;
     public dropY: number = 0;
     public lastFrameTime: number = 0;
+    public game: Game;
+    public line: Line;
+    public noteHeight: number = relativelyY(24);
+    public muchHeight: number = relativelyY(28);
     protected color: string = '#1b90ee';
     protected type: noteType = 'note';
     public fake: boolean = false;
@@ -30,19 +36,24 @@ export class Note {
         {start: 0, value:7}
     ];
 
-    constructor(timing: number, ctx: CanvasRenderingContext2D, startPositon: Position, options: {
+    constructor(game: Game, line: Line, timing: number, startPositon: Position, options: {
         fake?: boolean,
         bellow?: boolean
     }) {
         this.timing = timing;
-        this.ctx = ctx;
+        this.ctx = game.ctx;
         this.position = startPositon;
         this.startPosition = new Position(startPositon.x, startPositon.y, startPositon.r);
         this.fake = options.fake ?? false;
         this.bellow = options.bellow ?? false;
+        this.game = game;
+        this.line = line;
     }
 
     public nextFrame(time: number, linePosition: Position): Position {
+        if (time - this.timing >= 0 && this.status === 'drop') {
+            this.auto(time);
+        }
         this.dropY = this.startY - this.speeds.reduce((pre, cur) => {
             if(cur.start < time) {
                 return {
@@ -122,10 +133,7 @@ export class Note {
         this.dropY = this.startY;
     }
 
-    public render(time: number, speed: number, linePosition: Position) {
-        if (time - this.timing >= 0 && this.status === 'drop') {
-            this.auto(time);
-        }
+    public render(time: number, linePosition: Position) {
         if (this.status === 'perfect' && this.fake) {
             return;
         }
@@ -145,7 +153,7 @@ export class Note {
         if (this.much) {
             this.ctx.strokeStyle = '#e4d722';
             this.ctx.lineCap = 'square';
-            this.ctx.lineWidth = 20;
+            this.ctx.lineWidth = this.muchHeight;
             this.ctx.beginPath();
             this.ctx.moveTo(startX, startY);
             this.ctx.lineTo(endX, endY);
@@ -154,7 +162,7 @@ export class Note {
         this.ctx.lineCap = 'butt';
         this.ctx.strokeStyle = this.color;
         this.ctx.beginPath();
-        this.ctx.lineWidth = 16;
+        this.ctx.lineWidth = this.noteHeight;
         this.ctx.moveTo(startX, startY);
         this.ctx.lineTo(endX, endY);
         this.ctx.stroke();
@@ -195,6 +203,7 @@ export class Note {
             return ;
         }
         this.ctx.strokeStyle = "#e4d72288";
+        this.ctx.lineWidth = relativelyY(10);
         const startX = this.ctxWidth / 2 + relativelyX(this.position.x) - (time - this.hitTime) / this.hitEffectTime * (this.width / 2);
         const startY = this.ctxHeight / 2 + relativelyY(this.position.y) - (time - this.hitTime) / this.hitEffectTime * (this.width / 2);
         this.ctx.strokeRect(startX, startY, (time - this.hitTime) / this.hitEffectTime * this.width, (time - this.hitTime) / this.hitEffectTime * this.width);

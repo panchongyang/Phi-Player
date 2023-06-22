@@ -3,6 +3,8 @@ import { Position } from "./position";
 import { noteType, playAudio } from "./audios";
 import { relativelyX, relativelyY, speedNumber } from "./config";
 import { rotatePoint } from "./until";
+import { Game } from "./game";
+import { Line } from "./line";
 
 export class Hold extends Note {
     protected color: string = '#1b90ee88';
@@ -12,11 +14,11 @@ export class Hold extends Note {
     private timingSpeed: number = 0;
     private endPosition: Position = new Position(0, 0, 0);
 
-    constructor(timing: number, endTiming: number, ctx: CanvasRenderingContext2D, startPositon: Position, options: {
+    constructor(game: Game, line: Line, timing: number, endTiming: number, startPositon: Position, options: {
         fake?: boolean,
         bellow?: boolean
     }) {
-        super(timing, ctx, startPositon, options);
+        super(game, line, timing, startPositon, options);
         this.endTiming = endTiming;
     }
 
@@ -120,6 +122,9 @@ export class Hold extends Note {
     }
 
     public nextFrame(time: number, linePosition: Position): Position {
+        if (time - this.timing >= 0 && (this.status === 'drop' || this.status === 'juging')) {
+            this.auto(time);
+        }
         if(time > this.timing) {
             this.dropY = 0;
         } else {
@@ -161,18 +166,11 @@ export class Hold extends Note {
         return this.position;
     }
 
-    public render(time: number, speed: number, linePosition: Position) {
-        if (time - this.timing >= 0 && (this.status === 'drop' || this.status === 'juging')) {
-            this.auto(time);
+    public render(time: number, linePosition: Position) {
+        if ((this.status === 'perfect' || this.status === 'juging') && !this.fake) {
+            this.renderHitEffect(time);
         }
         if (this.status === 'perfect' && this.fake) {
-            return;
-        }
-        if (this.hitTime !== 0 && time - this.hitTime > this.hitEffectTime) {
-            return;
-        }
-        if (this.status === 'perfect' && !this.fake) {
-            this.renderHitEffect(time);
             return;
         }
         const nextPosition = this.nextFrame(time, linePosition);
@@ -205,6 +203,13 @@ export class Hold extends Note {
             this.ctx.lineTo(x4, y4);
             this.ctx.closePath();
             this.ctx.fill();
+            this.ctx.lineCap = 'butt';
+            this.ctx.strokeStyle = '#1b90ee';
+            this.ctx.beginPath();
+            this.ctx.lineWidth = this.noteHeight;
+            this.ctx.moveTo(x1, y1);
+            this.ctx.lineTo(x2, y2);
+            this.ctx.stroke();
         } else if (this.status === 'juging') {
             const x1 = this.ctxWidth / 2 + relativelyX(nextPosition.x) - this.width / 2 * Math.cos(linePosition.r * Math.PI / 180);
             const y1 = this.ctxHeight / 2 + relativelyY(nextPosition.y) - this.width / 2 * Math.sin(linePosition.r * Math.PI / 180);
@@ -233,6 +238,7 @@ export class Hold extends Note {
     public auto(time: number) {
         if (this.status === 'drop') {
             this.status = 'juging';
+            this.hitTime = time;
             if (!this.fake && time - this.timing > -80 && time - this.timing < 80) {
                 playAudio('note');
             }
@@ -245,18 +251,22 @@ export class Hold extends Note {
     }
 
     public renderHitEffect(time: number) {
-        if (this.fake || time - this.endTiming < 0 || time - this.endTiming > 240 && this.hitTime !== 0) {
+        if (this.fake) {
             return;
         }
-        if (this.hitTime === 0) {
-            this.hitTime = time;
+        if(time - this.endTiming > this.hitEffectTime) {
+            return;
+        }
+        if(time - this.endTiming > 0 && (time - this.hitTime) > (this.hitEffectTime * Math.ceil((this.endTiming - this.timing)) / this.hitEffectTime)) {
+            return;
         }
         if(time < this.hitTime) {
             return ;
         }
         this.ctx.strokeStyle = "#e4d72288";
-        const startX = this.ctxWidth / 2 + relativelyX(this.position.x) - (time - this.hitTime) / this.hitEffectTime * (this.width / 2);
-        const startY = this.ctxHeight / 2 + relativelyY(this.position.y) - (time - this.hitTime) / this.hitEffectTime * (this.width / 2);
-        this.ctx.strokeRect(startX, startY, (time - this.hitTime) / this.hitEffectTime * this.width, (time - this.hitTime) / this.hitEffectTime * this.width);
+        this.ctx.lineWidth = relativelyY(10);
+        const startX = this.ctxWidth / 2 + relativelyX(this.position.x) - ((time - this.hitTime) % this.hitEffectTime) / this.hitEffectTime * (this.width / 2);
+        const startY = this.ctxHeight / 2 + relativelyY(this.position.y) - ((time - this.hitTime) % this.hitEffectTime) / this.hitEffectTime * (this.width / 2);
+        this.ctx.strokeRect(startX, startY, ((time - this.hitTime) % this.hitEffectTime) / this.hitEffectTime * this.width, ((time - this.hitTime) % this.hitEffectTime) / this.hitEffectTime * this.width);
     }
 }

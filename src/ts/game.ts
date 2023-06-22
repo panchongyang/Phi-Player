@@ -7,7 +7,7 @@ export class Game {
     private time: number = 0;
     private lines: Line[] = [];
     private notes: (Note | Drag)[] = [];
-    private ctx: CanvasRenderingContext2D;
+    public ctx: CanvasRenderingContext2D;
     private audio: HTMLAudioElement;
     private frameID: number = 0;
     private lastFrameTime: number = 0;

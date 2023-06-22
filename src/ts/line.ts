@@ -3,6 +3,7 @@ import { height, relativelyX, relativelyY, speedNumber, width } from "./config";
 import { Drag } from "./drag";
 import { easeList } from "./ease";
 import { Flick } from "./flick";
+import { Game } from "./game";
 import { Hold } from "./hold";
 import { LEvent } from "./linevent";
 import { Note } from "./note";
@@ -22,7 +23,7 @@ export interface NoteConfig {
 export class Line {
     private id: number;
     private position: Position = new Position(0, 0, 0);
-    public notes: (Note | Drag | Flick)[] = [];
+    public notes: (Note | Drag | Flick | Hold)[] = [];
     public events: LEvent[] = [];
     private width: number = width;
     private height: number = height;
@@ -30,31 +31,34 @@ export class Line {
     private color: string = 'rgba(255, 225, 33, 1)';
     private speed: number = 0;
     public offset: number = 0;
+    public game: Game;
 
-    constructor(id: number, ctx: CanvasRenderingContext2D, speed: number, notes: NoteConfig[]) {
+    constructor(game: Game, id: number, ctx: CanvasRenderingContext2D, speed: number, notes: NoteConfig[]) {
+        this.game = game;
         this.id = id;
         this.ctx = ctx;
         this.speed = speed;
+        const line = this;
         this.notes = notes.map((note, index) => {
             const startY = 0 - note.timing * this.speed / speedNumber;
             let r: Note | Drag;
             if (note.type === 'note') {
-                r = new Note(note.timing, ctx, new Position(note.startx, startY, 0), {
+                r = new Note(game, line, note.timing, new Position(note.startx, startY, 0), {
                     fake: note.fake,
                     bellow: note.bellow
                 });
             } else if (note.type === 'drag') {
-                r = new Drag(note.timing, ctx, new Position(note.startx, startY, 0), {
+                r = new Drag(game, line, note.timing, new Position(note.startx, startY, 0), {
                     fake: note.fake,
                     bellow: note.bellow
                 });
             } else if (note.type === 'flicker') {
-                r = new Flick(note.timing, ctx, new Position(note.startx, startY, 0), {
+                r = new Flick(game, line, note.timing, new Position(note.startx, startY, 0), {
                     fake: note.fake,
                     bellow: note.bellow
                 });
             } else {
-                r = new Hold(note.timing, note.endTiming ?? 0, ctx, new Position(note.startx, startY, 0), {
+                r = new Hold(game, line, note.timing, note.endTiming ?? 0, new Position(note.startx, startY, 0), {
                     fake: note.fake,
                     bellow: note.bellow,
                 });
@@ -207,7 +211,7 @@ export class Line {
             endY = point[1][1];
         }
         this.ctx.beginPath();
-        this.ctx.lineWidth = 3;
+        this.ctx.lineWidth = 10;
         this.ctx.strokeStyle = this.color;
         this.ctx.moveTo(startX, startY);
         this.ctx.lineTo(endX, endY);
@@ -219,7 +223,7 @@ export class Line {
 
     private renderNotes(time: number) {
         for (const note of this.notes) {
-            note.render(time, this.speed, this.position);
+            note.render(time, this.position);
         }
     }
 
