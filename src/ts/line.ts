@@ -1,3 +1,5 @@
+import { IRenderUnit } from "../util/unit";
+import { IRenderer } from "../util/unit/renderer";
 import { noteType } from "./audios";
 import { height, relativelyX, relativelyY, speedNumber, width } from "./config";
 import { Drag } from "./drag";
@@ -20,7 +22,7 @@ export interface NoteConfig {
 }
 
 
-export class Line {
+export class Line implements IRenderer {
     private id: number;
     private position: Position = new Position(0, 0, 0);
     public notes: (Note | Drag | Flick | Hold)[] = [];
@@ -32,6 +34,7 @@ export class Line {
     private speed: number = 0;
     public offset: number = 0;
     public game: Game;
+    public level: number = 1;
 
     constructor(game: Game, id: number, ctx: CanvasRenderingContext2D, speed: number, notes: NoteConfig[]) {
         this.game = game;
@@ -192,7 +195,7 @@ export class Line {
         }
     }
 
-    public renderLine(time: number) {
+    public render(time: number) {
         const position = this.nextFrame(time);
         let startY = 0;
         let endY = 0;
@@ -218,17 +221,16 @@ export class Line {
         this.ctx.stroke();
         this.ctx.fillStyle = '#fff';
         //this.ctx.fillText(this.id + '', this.width / 2 + relativelyX(position.x), this.height / 2 + relativelyY(position.y));
-        this.renderNotes(time);
     }
 
-    private renderNotes(time: number) {
+    public renderNotes(time: number) {
         for (const note of this.notes) {
-            note.render(time, this.position);
+            this.game.layers.add(new IRenderUnit(note, note.level, time, this.position));
         }
     }
 
     public renderNext(time: number) {
-        this.renderLine(time);
+        this.render(time);
     }
 
     public click(x: number, y: number) {

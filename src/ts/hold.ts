@@ -13,6 +13,7 @@ export class Hold extends Note {
     private long: number = 0;
     private timingSpeed: number = 0;
     private endPosition: Position = new Position(0, 0, 0);
+    public level: number = 2;
 
     constructor(game: Game, line: Line, timing: number, endTiming: number, startPositon: Position, options: {
         fake?: boolean,

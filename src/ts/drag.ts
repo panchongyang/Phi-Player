@@ -7,6 +7,7 @@ import { Line } from "./line";
 export class Drag extends Note {
     protected color: string = '#e4d722';
     protected type: noteType = 'drag';
+    public level: number = 3;
 
     constructor(game: Game, line: Line, timing: number, startPositon: Position, options: {
         fake?: boolean,

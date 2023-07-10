@@ -89,6 +89,7 @@
     "tapable": "^2.2.1",
     "terser": "^5.16.5",
     "terser-webpack-plugin": "^5.3.6",
+    "typescript": "^5.1.6",
     "update-browserslist-db": "^1.0.10",
     "uri-js": "^4.4.1",
     "url-loader": "^4.1.1",

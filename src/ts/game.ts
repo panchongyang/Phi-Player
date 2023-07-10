@@ -1,3 +1,5 @@
+import { ILayers } from "../util/layers";
+import { IRenderUnit } from "../util/unit";
 import { height, width } from "./config";
 import { Drag } from "./drag";
 import { Line } from "./line";
@@ -19,6 +21,7 @@ export class Game {
     public offset: number = 0;
     private frameNumber = 0;
     private frameCount = 0;
+    public layers: ILayers;
 
     constructor(ctx: CanvasRenderingContext2D, audio: HTMLAudioElement, imgFile: Blob) {
         this.ctx = ctx;
@@ -28,6 +31,7 @@ export class Game {
         } catch {
             console.log('not found img');
         }
+        this.layers = new ILayers();
     }
 
     public setLines(lines: Line[]) {
@@ -146,8 +150,10 @@ export class Game {
         this.ctx.drawImage(this.img, 0, 0, this.img.width, this.img.height,0, 0, width, height);
         this.ctx.fillRect(0, 0, width, height);
         for (const line of this.lines) {
-            line.renderNext(time);
+            this.layers.add(new IRenderUnit(line, line.level, time));
+            line.renderNotes(time);
         }
+        this.layers.flush();
         this.ctx.fillStyle = '#fff';
         this.ctx.fillText(`${this.frameNumber}`, width - 40, 20);
     };

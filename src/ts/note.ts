@@ -4,8 +4,9 @@ import { rotatePoint } from "./until";
 import { noteType, playAudio } from "./audios";
 import { Game } from "./game";
 import { Line } from "./line";
+import { IRenderer } from "../util/unit/renderer";
 
-export class Note {
+export class Note implements IRenderer {
     public startPosition: Position;
     public position: Position;
     public timing: number;
@@ -35,6 +36,7 @@ export class Note {
     }[] = [
         {start: 0, value:7}
     ];
+    public level: number = 5;
 
     constructor(game: Game, line: Line, timing: number, startPositon: Position, options: {
         fake?: boolean,

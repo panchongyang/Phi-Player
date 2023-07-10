@@ -7,6 +7,7 @@ import { Line } from "./line";
 export class Flick extends Note {
     protected color: string = '#eb4747';
     protected type: noteType = 'flicker';
+    public level: number = 4;
 
     constructor(game: Game, line: Line, timing: number, startPositon: Position, options: {
         fake?: boolean,
